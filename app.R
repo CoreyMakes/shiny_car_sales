@@ -24,13 +24,17 @@ ui <- dashboardPage(
         dashboardBody(
           tabItems(
             #page1 content
-            tabItem(tabName = "page1"),
+            tabItem(tabName = "page1", 
+              fluidRow(box(title = "PLOT1", collapsible = TRUE, plotOutput("p1"))),
             
             #page2 content
-            tabItem(tabName = "page2")
+            tabItem(tabName = "page2",
+              fluidRow(box(title = "PLOT2", collapsible = TRUE, plotOutput("p2")))
             
-          )
         )
+      )
+    )
+  )
 )
 
 server <- function(input, output) {}
