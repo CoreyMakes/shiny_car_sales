@@ -26,6 +26,11 @@ ui <- dashboardPage(
             #page1 content
             tabItem(tabName = "page1", 
               fluidRow(box(title = "PLOT1", collapsible = TRUE, plotOutput("p1"))),
+              sliderInput("priceInput", "Price in thousands", 0, 100, c(10, 50), pre = "$"),
+              radioButtons("typeInput", "Vehicle type",
+                           choices = c("Car", "Passenger"),
+                           selected = "Car"),
+              fluidRow(uiOutput("ManufacturerOutput")),
             
             #page2 content
             tabItem(tabName = "page2",
@@ -37,6 +42,33 @@ ui <- dashboardPage(
   )
 )
 
-server <- function(input, output) {}
+server <- function(input, output){
+  output$ManufacurerOutput <- renderUI({
+    selectInput("ManufacturerInput", "Manufacturer",
+                sort(unique(df$Manufacturer)),
+                selected = "Acura")
+  })
+  
+  filtered <- reactive({
+    if (is.null(input$ManufacturerInput)) {
+      return(NULL)
+    }    
+    
+    df %>%
+      filter(Sales_in_thousands >= input$priceInput[1],
+             Sales_in_thousands <= input$priceInput[2],
+             Vehicle_type == input$typeInput,
+             Manufacturer == input$ManufacturerInput
+      )
+  })
+  
+  output$p1 <- renderPlot({
+    if (is.null(filtered())) {
+      return()
+    }
+    ggplot(filtered(), aes(Horsepower)) +
+      geom_histogram()
+  })
+}
 
 shinyApp(ui = ui, server = server)
